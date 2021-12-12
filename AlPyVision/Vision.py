@@ -148,11 +148,17 @@ class Vision:
         return window_information
 
     # Method 3: Capturing the window from Albion and returning it in an openCV-understandable format
-    def captureWindow(self, window, window_width, window_height, debug_mode=False):
+    def captureWindow(self, window_width, window_height, window_handle=None, debug_mode=False):
+
+        # Parse out window handle - if it is none, we capture the whole desktop
+        # IMPORTANT: To capture the Albion client, we need to set window_handle to None, since we only capture the
+        # initial screenshot and never update it. See: https://www.youtube.com/watch?v=7k4j-uL8WSQ&list=PL1m2M8LQlzfKtkKq2lK5xko4X-8EZzFPI&t=132s
+        if window_handle is None:
+            window_handle = win32gui.GetDesktopWindow()
 
         # Get window device context - a structure that defines a set of graphic objects and their associated attributes
         # https://docs.microsoft.com/en-us/windows/win32/gdi/device-contexts
-        window_device_context = win32gui.GetWindowDC(window)
+        window_device_context = win32gui.GetWindowDC(window_handle)
         device_context = win32ui.CreateDCFromHandle(window_device_context)
         compatible_device_context = device_context.CreateCompatibleDC()
 
@@ -171,7 +177,7 @@ class Vision:
         # Free resources
         device_context.DeleteDC()
         compatible_device_context.DeleteDC()
-        win32gui.ReleaseDC(window, window_device_context)
+        win32gui.ReleaseDC(window_handle, window_device_context)
         win32gui.DeleteObject(bitmap.GetHandle())
 
         # Drop alpha channel to avoid cv.matchTemplate() error
