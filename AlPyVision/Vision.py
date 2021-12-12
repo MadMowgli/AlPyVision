@@ -179,3 +179,6 @@ class Vision:
     def showBotVision(self, image, show_fps=True):
         cv.imshow('Bot Vision', image)
 
+        if cv.waitKey(1) == ord('y'):
+            cv.destroyAllWindows()
+            return False
