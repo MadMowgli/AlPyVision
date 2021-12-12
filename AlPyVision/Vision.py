@@ -1,3 +1,4 @@
+from time import time
 import numpy as np
 import cv2 as cv
 import win32gui, win32ui, win32con
@@ -158,8 +159,8 @@ class Vision:
         bitmap = win32ui.CreateBitmap()
         bitmap.CreateCompatibleBitmap(device_context, window_width, window_height)
         bitmap_bits = bitmap.GetBitmapBits(True)
-        img = np.fromString(bitmap_bits, dtype='uint8')
-        img.shape(window_height, window_width, 4)
+        img = np.frombuffer(bitmap_bits, dtype='uint8')
+        img.shape = (window_height, window_width, 4)
 
         # Free resources
         device_context.DeleteDC()
@@ -175,5 +176,6 @@ class Vision:
         return img
 
     # Method 4: Showing the bot-vision
-    def showBotVision(self):
-        pass
+    def showBotVision(self, image, show_fps=True):
+        cv.imshow('Bot Vision', image)
+

@@ -1,4 +1,5 @@
 import unittest
+import numpy as np
 import AlPyVision.Vision as alpyvision
 
 
@@ -43,7 +44,17 @@ class VisionUnitTest(unittest.TestCase):
 
     # Test Case 3: Capture Window
     def test_captureWindow(self):
-        self.assertTrue(True)
+        # Unit test message
+        message = 'Output 3 is not of instance numpy.ndarray'
+
+        # Instantiate new object & grab output
+        vision = alpyvision.Vision()
+        window_info = vision.getWindowInfo()
+        window_capture = vision.captureWindow(window_info[0], window_info[1], window_info[2])
+
+        # Run tests
+        self.assertIsInstance(obj=window_capture, cls=np.ndarray, msg=message)
+
 
     # Test Case 4: Show bot vision
     def test_showBotVision(self):
