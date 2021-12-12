@@ -18,7 +18,7 @@ class Vision:
                                        cv.TM_CCORR, cv.TM_CCORR_NORMED,
                                        cv.TM_SQDIFF, cv.TM_SQDIFF_NORMED]
         self.normalized_match_template_methods = [cv.TM_CCOEFF_NORMED, cv.TM_CCORR_NORMED, cv.TM_SQDIFF_NORMED]
-        self.debug_modes = [None, 'rectangles', 'crosshairs']
+        self.debug_modes = [None, 'rectangles', 'crosshairs', 'visual']
 
         # Set colour codes
         self.copper_ore_rgb.extend([(255, 228, 154), (201, 163, 111), (149, 126, 86)])
@@ -28,7 +28,7 @@ class Vision:
 
     # Method 1: Finding click positions based on the cv.matchTemplate() function
     def findClickPositions(self, haystack_img, needle_img, method=cv.TM_CCOEFF_NORMED, threshold=0.9,
-                           debug_mode=None, ):
+                           debug_mode=None):
         '''
         This method performs the openCV.matchTemplate()-method, using the needle_img on the haystack_img.
         Heavily inspired and mostly inherited from: https://github.com/learncodebygaming/opencv_tutorials/blob/master/003_group_rectangles/main.py
@@ -103,17 +103,18 @@ class Vision:
                 cv.rectangle(haystack_img, top_left, bottom_right,
                              color=line_color, lineType=line_type,
                              thickness=line_thickness)
+                cv.waitKey()
 
             # Draw crosshairs if we're in crosshairs-debug mode
             elif debug_mode == self.debug_modes[2]:
                 cv.drawMarker(haystack_img, (center_x, center_y),
                               color=marker_color, marker_type=marker_type,
                               markerSize=marker_size, thickness=line_thickness)
+                cv.waitKey()
 
         # Show outputs
-        if debug_mode:
-            cv.imshow('Matches', haystack_img)
-            cv.waitKey()
+        if debug_mode == self.debug_modes[3]:
+            return haystack_img
 
         return click_points
 
