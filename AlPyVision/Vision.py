@@ -1,21 +1,31 @@
 import numpy as np
 import cv2 as cv
+import win32gui, win32ui, win32con
 
 
 class Vision:
     # Attributes
-    match_template_methods = None
-    normalized_match_template_methods = None
-    debug_modes = [None, 'rectangles', 'crosshairs']
+    match_template_methods = list()
+    normalized_match_template_methods = list()
+    debug_modes = list()
+    copper_ore_rgb = list()
+    tin_ore_rgb = list()
 
-    # Constructor
+    # --------------- Constructor
     def __init__(self):
         self.match_template_methods = [cv.TM_CCOEFF, cv.TM_CCOEFF_NORMED,
                                        cv.TM_CCORR, cv.TM_CCORR_NORMED,
                                        cv.TM_SQDIFF, cv.TM_SQDIFF_NORMED]
         self.normalized_match_template_methods = [cv.TM_CCOEFF_NORMED, cv.TM_CCORR_NORMED, cv.TM_SQDIFF_NORMED]
+        self.debug_modes = [None, 'rectangles', 'crosshairs']
 
-    # Methods
+        # Set colour codes
+        self.copper_ore_rgb.extend([(255, 228, 154), (201, 163, 111), (149, 126, 86)])
+        self.tin_ore_rgb.extend([(92, 253, 152), (33, 147, 38), (59, 196, 119)])
+
+    # --------------- Methods
+
+    # Method 1: Finding click positions based on the cv.matchTemplate() function
     def findClickPositions(self, haystack_img_path, needle_img_path, method=cv.TM_CCOEFF_NORMED, threshold=0.9,
                            debug_mode=None, ):
         '''
@@ -83,17 +93,16 @@ class Vision:
         rectangles, weights = cv.groupRectangles(rectangles, groupThreshold=group_threshold, eps=group_eps)
 
         # Get the center point from each rectangle
-        for (x_coordinate, y_coordinate, width, heigth) in rectangles:
+        for (x_coordinate, y_coordinate, width, height) in rectangles:
             center_x = x_coordinate + int(width / 2)
-            center_y = y_coordinate + int(heigth / 2)
+            center_y = y_coordinate + int(height / 2)
             coordinate_tuple = (center_x, center_y)
             click_points.append(coordinate_tuple)
-
 
             # Draw rectangles if we're in rectangles-debug mode
             if debug_mode == self.debug_modes[1]:
                 top_left = (x_coordinate, y_coordinate)
-                bottom_right = (x_coordinate + width, y_coordinate + heigth)
+                bottom_right = (x_coordinate + width, y_coordinate + height)
                 cv.rectangle(haystack_img, top_left, bottom_right,
                              color=line_color, lineType=line_type,
                              thickness=line_thickness)
@@ -110,3 +119,61 @@ class Vision:
             cv.waitKey()
 
         return click_points
+
+    # Method 2: Return window handle, window_width and window_height of a given window
+    def getWindowInfo(self, window_name='Albion Online Client'):
+
+        # Local variables
+        window_information = []
+
+        # Local variables
+        window_handle = None
+        window_width = None
+        window_height = None
+
+        # Try grabbing the albion online client window_handle and setting the width and height
+        try:
+            window_handle = win32gui.FindWindow(None, window_name)
+            window_rectangle = win32gui.GetWindowRect(window_handle)
+            window_width = window_rectangle[2] - window_rectangle[0]
+            window_height = window_rectangle[3] - window_rectangle[1]
+        except BaseException as exception:
+            print('[VISION] Exception capturing a window_handle using win32gui.FindWindow()')
+            print('[VISION] Exception info: ', exception)
+
+        # Add results to the result array
+        window_information.extend([window_handle, window_width, window_height])
+
+        return window_information
+
+    # Method 3: Capturing the window from Albion and returning it in an openCV-understandable format
+    def captureWindow(self, window, window_width, window_height):
+
+        # Get window device context - a structure that defines a set of graphic objects and their associated attributes
+        # https://docs.microsoft.com/en-us/windows/win32/gdi/device-contexts
+        window_device_context = win32gui.GetWindowDC(window)
+        device_context = win32ui.CreateDCFromHandle(window_device_context)
+
+        # Creates a bitmap out of the device context and convert it into a format openCV can read
+        bitmap = win32ui.CreateBitmap()
+        bitmap.CreateCompatibleBitmap(device_context, window_width, window_height)
+        bitmap_bits = bitmap.GetBitmapBits(True)
+        img = np.fromString(bitmap_bits, dtype='uint8')
+        img.shape(window_height, window_width, 4)
+
+        # Free resources
+        device_context.DeleteDC()
+        win32gui.ReleaseDC(window, window_device_context)
+        win32gui.DeleteObject(bitmap.GetHandle())
+
+        # Drop alpha channel to avoid cv.matchTemplate() error
+        img = img[..., :3]
+
+        # Make image C_CONTIGUOUS to avoid typeErrors
+        img = np.ascontiguousarray(img)
+
+        return img
+
+    # Method 4: Showing the bot-vision
+    def showBotVision(self):
+        pass
