@@ -4,7 +4,7 @@ import setuptools
 with open('README.md', 'r') as readme:
     long_description = readme.read()
 
-VERSION = '0.0.6'
+VERSION = '0.0.7'
 
 # Let setuptools work
 setuptools.setup(

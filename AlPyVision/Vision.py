@@ -27,13 +27,13 @@ class Vision:
     # --------------- Methods
 
     # Method 1: Finding click positions based on the cv.matchTemplate() function
-    def findClickPositions(self, haystack_img_path, needle_img_path, method=cv.TM_CCOEFF_NORMED, threshold=0.9,
+    def findClickPositions(self, haystack_img, needle_img, method=cv.TM_CCOEFF_NORMED, threshold=0.9,
                            debug_mode=None, ):
         '''
         This method performs the openCV.matchTemplate()-method, using the needle_img on the haystack_img.
         Heavily inspired and mostly inherited from: https://github.com/learncodebygaming/opencv_tutorials/blob/master/003_group_rectangles/main.py
-        :param haystack_img_path:
-        :param needle_img_path:
+        :param haystack_image:
+        :param needle_image:
         :param threshold:
         :param debug_mode:
         :return click_points:
@@ -50,8 +50,6 @@ class Vision:
         marker_size = 40
 
         # Local variables
-        haystack_img = None
-        needle_img = None
         needle_img_width = 0
         needle_img_height = 0
         rectangles = []
@@ -64,10 +62,8 @@ class Vision:
         if debug_mode not in self.debug_modes:
             debug_mode = self.debug_modes[1]
 
-        # Try to load images in memory using cv.imread()
+        # We're already passing in image data from cv.imread(), get image shape now
         try:
-            haystack_img = cv.imread(haystack_img_path)
-            needle_img = cv.imread(needle_img_path)
             needle_img_width = needle_img.shape[0]
             needle_img_height = needle_img.shape[1]
         except BaseException as exception:

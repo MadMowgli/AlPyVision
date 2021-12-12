@@ -1,5 +1,6 @@
 import unittest
 import numpy as np
+import cv2 as cv
 import AlPyVision.Vision as alpyvision
 
 
@@ -15,12 +16,12 @@ class VisionUnitTest(unittest.TestCase):
         vision = alpyvision.Vision()
 
         # Required parameters are: needle_img_path, haystack_img_path
-        needle_img_path = 'resources/ores/test_ores_needle.png'
-        haystack_img_path = 'resources/ores/test_ores_haystack.png'
+        needle_image = cv.imread('resources/ores/test_ores_needle.png')
+        haystack_image = cv.imread('resources/ores/test_ores_haystack.png')
         threshold = 0.85
 
         # Grab output & make comparison
-        clickpoints = vision.findClickPositions(haystack_img_path, needle_img_path, threshold=threshold)
+        clickpoints = vision.findClickPositions(haystack_img=haystack_image, needle_img=needle_image, threshold=threshold)
         self.assertIsInstance(obj=clickpoints, cls=list, msg=message)
 
     # Test Case 2: Get window information
