@@ -1,8 +1,8 @@
 import numpy as np
 import cv2 as cv
 
-class Vision:
 
+class Vision:
     # Attributes
     match_template_methods = None
     normalized_match_template_methods = None
@@ -10,20 +10,19 @@ class Vision:
 
     # Constructor
     def __init__(self):
-        # The match template methods are stored as strings to improve performance
-        self.match_template_methods = ['cv.TM_CCOEFF', 'cv.TM_CCOEFF_NORMED',
-                                       'cv.TM_CCORR', 'cv.TM_CCORR_NORMED',
-                                       'cv.TM_SQDIFF', 'cv.TM_SQDIFF_NORMED']
-        self.normalized_match_template_methods = ['cv.TM_CCOEFF_NORMED', 'cv.TM_CCORR_NORMED', 'cv.TM_SQDIFF_NORMED']
+        self.match_template_methods = [cv.TM_CCOEFF, cv.TM_CCOEFF_NORMED,
+                                       cv.TM_CCORR, cv.TM_CCORR_NORMED,
+                                       cv.TM_SQDIFF, cv.TM_SQDIFF_NORMED]
+        self.normalized_match_template_methods = [cv.TM_CCOEFF_NORMED, cv.TM_CCORR_NORMED, cv.TM_SQDIFF_NORMED]
 
     # Methods
-    def findClickPositions(self, needle_img_path, haystack_img_path, method='cv.CCOEFF_NORMED', threshold=0.5,
+    def findClickPositions(self, haystack_img_path, needle_img_path, method=cv.TM_CCOEFF_NORMED, threshold=0.9,
                            debug_mode=None, ):
         '''
         This method performs the openCV.matchTemplate()-method, using the needle_img on the haystack_img.
         Heavily inspired and mostly inherited from: https://github.com/learncodebygaming/opencv_tutorials/blob/master/003_group_rectangles/main.py
-        :param needle_img_path:
         :param haystack_img_path:
+        :param needle_img_path:
         :param threshold:
         :param debug_mode:
         :return click_points:
@@ -54,11 +53,12 @@ class Vision:
         if debug_mode not in self.debug_modes:
             debug_mode = self.debug_modes[1]
 
-
         # Try to load images in memory using cv.imread()
         try:
             haystack_img = cv.imread(haystack_img_path)
             needle_img = cv.imread(needle_img_path)
+            needle_img_width = needle_img.shape[0]
+            needle_img_height = needle_img.shape[1]
         except BaseException as exception:
             print('[VISION] Exception while loading images using cv.imread()')
             print('[VISION] Exception info: ', exception)
@@ -88,6 +88,7 @@ class Vision:
             center_y = y_coordinate + int(heigth / 2)
             coordinate_tuple = (center_x, center_y)
             click_points.append(coordinate_tuple)
+
 
             # Draw rectangles if we're in rectangles-debug mode
             if debug_mode == self.debug_modes[1]:
