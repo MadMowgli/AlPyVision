@@ -19,6 +19,7 @@ setuptools.setup(
     install_requires=['opencv-python', 'numpy'],
     license='MIT',
     classifiers=[
+        'Development Status :: 1 - Planning'
         'Intended Audience :: Developers',
         'Programming Language :: Python :: 3',
         'Operating System :: Microsoft :: Windows'
