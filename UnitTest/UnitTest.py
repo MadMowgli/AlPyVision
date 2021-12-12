@@ -50,7 +50,7 @@ class VisionUnitTest(unittest.TestCase):
         # Instantiate new object & grab output
         vision = alpyvision.Vision()
         window_info = vision.getWindowInfo()
-        window_capture = vision.captureWindow(window_info[0], window_info[1], window_info[2])
+        window_capture = vision.captureWindow(window_info[0], window_info[1], window_info[2], debug_mode=True)
 
         # Run tests
         self.assertIsInstance(obj=window_capture, cls=np.ndarray, msg=message)

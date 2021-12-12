@@ -4,7 +4,7 @@ import setuptools
 with open('README.md', 'r') as readme:
     long_description = readme.read()
 
-VERSION = '0.0.4'
+VERSION = '0.0.5'
 
 # Let setuptools work
 setuptools.setup(
@@ -18,7 +18,7 @@ setuptools.setup(
     keywords=['albion', 'opencv', 'computer vision'],
     url='https://github.com/MadMowgli/AlPyVision',
     packages=setuptools.find_packages(),
-    install_requires=['opencv-python', 'numpy'],
+    install_requires=['opencv-python', 'numpy', 'pywin32'],
     license='MIT',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',

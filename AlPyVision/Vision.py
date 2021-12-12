@@ -148,22 +148,29 @@ class Vision:
         return window_information
 
     # Method 3: Capturing the window from Albion and returning it in an openCV-understandable format
-    def captureWindow(self, window, window_width, window_height):
+    def captureWindow(self, window, window_width, window_height, debug_mode=False):
 
         # Get window device context - a structure that defines a set of graphic objects and their associated attributes
         # https://docs.microsoft.com/en-us/windows/win32/gdi/device-contexts
         window_device_context = win32gui.GetWindowDC(window)
         device_context = win32ui.CreateDCFromHandle(window_device_context)
+        compatible_device_context = device_context.CreateCompatibleDC()
 
         # Creates a bitmap out of the device context and convert it into a format openCV can read
         bitmap = win32ui.CreateBitmap()
         bitmap.CreateCompatibleBitmap(device_context, window_width, window_height)
+
+        compatible_device_context.SelectObject(bitmap)
+        compatible_device_context.BitBlt((0, 0), (window_width, window_height), device_context,
+                                         (0, 0), win32con.SRCCOPY)
+
         bitmap_bits = bitmap.GetBitmapBits(True)
         img = np.frombuffer(bitmap_bits, dtype='uint8')
         img.shape = (window_height, window_width, 4)
 
         # Free resources
         device_context.DeleteDC()
+        compatible_device_context.DeleteDC()
         win32gui.ReleaseDC(window, window_device_context)
         win32gui.DeleteObject(bitmap.GetHandle())
 
@@ -172,6 +179,10 @@ class Vision:
 
         # Make image C_CONTIGUOUS to avoid typeErrors
         img = np.ascontiguousarray(img)
+
+        if debug_mode:
+            cv.imshow('Bot Vision', img)
+            cv.waitKey()
 
         return img
 
