@@ -63,12 +63,8 @@ class Vision:
             debug_mode = self.debug_modes[1]
 
         # We're already passing in image data from cv.imread(), get image shape now
-        try:
-            needle_img_width = needle_img.shape[0]
-            needle_img_height = needle_img.shape[1]
-        except BaseException as exception:
-            print('[VISION] Exception while loading images using cv.imread()')
-            print('[VISION] Exception info: ', exception)
+        needle_img_width = needle_img.shape[0]
+        needle_img_height = needle_img.shape[1]
 
         # Perform the matchTemplate function
         result_matrix = cv.matchTemplate(haystack_img, needle_img, method)
@@ -78,6 +74,7 @@ class Vision:
 
         # Transform the output from np.where to an array of tuples, containing our (X, Y) coordinates
         locations = list(zip(*locations[::-1]))
+        # print('Found locations: {}'.format(len(locations)))
 
         # Create a list of rectangles out of the locations we found. Append each rectangle twice to escape the
         # cv.groupRectanges() function eliminating single rectangles, since we want them as well.
@@ -88,6 +85,7 @@ class Vision:
 
         # Group the rectangles so we get cleaner output
         rectangles, weights = cv.groupRectangles(rectangles, groupThreshold=group_threshold, eps=group_eps)
+        # print('Found rectangles: {}'.format(len(rectangles)))
 
         # Get the center point from each rectangle
         for (x_coordinate, y_coordinate, width, height) in rectangles:
@@ -103,18 +101,18 @@ class Vision:
                 cv.rectangle(haystack_img, top_left, bottom_right,
                              color=line_color, lineType=line_type,
                              thickness=line_thickness)
-                cv.waitKey()
+
 
             # Draw crosshairs if we're in crosshairs-debug mode
             elif debug_mode == self.debug_modes[2]:
                 cv.drawMarker(haystack_img, (center_x, center_y),
                               color=marker_color, marker_type=marker_type,
                               markerSize=marker_size, thickness=line_thickness)
-                cv.waitKey()
+
 
         # Show outputs
-        if debug_mode == self.debug_modes[3]:
-            return haystack_img
+        if debug_mode:
+            cv.imshow('Bot Vision', haystack_img)
 
         return click_points
 
