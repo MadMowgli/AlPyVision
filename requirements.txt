@@ -1,3 +1,5 @@
 numpy>=1.21.4
 opencv-python>=4.5.4.60
 pywin32>=302
+setuptools>=59.5.0
+PyAutoGUI>=0.9.53
